@@ -90,10 +90,7 @@ const seedDatabase = async () => {
 const PORT = process.env.PORT || 5000;
 
 const startServer = async () => {
-  // Connect to DB (Mongo or fallback to JSON)
   await connectDB();
-  
-  // Seed database
   await seedDatabase();
 
   app.listen(PORT, () => {
@@ -101,4 +98,11 @@ const startServer = async () => {
   });
 };
 
-startServer();
+if (!process.env.VERCEL) {
+  startServer();
+} else {
+  // On Vercel, connect and seed in the background
+  connectDB().then(() => seedDatabase()).catch(err => console.error("Vercel DB connection error:", err));
+}
+
+module.exports = app;
